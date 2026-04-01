@@ -48,6 +48,11 @@ async function bootstrap() {
     },
   });
 
+  const httpAdapter = app.getHttpAdapter();
+  httpAdapter.get('/', (_req, res) => {
+    res.redirect('/docs');
+  });
+
   await app.listen(process.env.PORT ?? 3000);
 
   console.log(

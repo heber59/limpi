@@ -48,13 +48,20 @@ Ambos se califican
 
 ## Estado del proyecto
 
-MVP en desarrollo:
+Backend implementado:
 
 * [x] Diseño de arquitectura
 * [x] Diseño de base de datos
-* [ ] Backend
+* [x] Backend
 * [ ] App móvil
 * [ ] Deploy
+
+---
+
+## Documentación disponible
+
+* API docs: `http://localhost:3000/docs`
+* API base: `http://localhost:3000/api/v1`
 
 ---
 
