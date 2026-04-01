@@ -107,13 +107,16 @@ notifications
 
 Lo importante aquí:
 
-*  login Firebase
-* NestJS solo verifica el token de Firebase
+* login Firebase
+* NestJS verifica el token de Firebase y lee el usuario de Supabase
+* API con prefijo global `/api/v1`
+* Swagger disponible en `/docs`
+* `/` redirige automáticamente a `/docs`
 
 Flujo:
 
 ```
-App login → Firebase → devuelve token → App llama tu API → NestJS verifica token → OK
+App login → Firebase → devuelve token → App llama la API → NestJS verifica token → OK
 ```
 
 ---
@@ -131,7 +134,8 @@ Endpoints MVP:
 ## Auth
 
 ```
-GET /me
+GET /auth/me
+POST /auth/register
 ```
 
 ## Users
@@ -182,6 +186,10 @@ POST /notifications/token
 
 Cuando tengas Swagger funcionando, ya tienes backend profesional.
 
+* Swagger: `/docs`
+* API base: `/api/v1`
+* `/` redirige a `/docs`
+
 ---
 
 # STEP 3 — Frontend Mobile
@@ -225,12 +233,12 @@ Framework:
 
 # Resumen del Roadmap
 
-| Step   | Objetivo                               |
-| ------ | -------------------------------------- |
-| Step 1 | Infraestructura y autenticación        |
-| Step 2 | Backend + API + Swagger                |
-| Step 3 | App móvil                              |
-| Step 4 | Publicar y validar con usuarios reales |
+| Step   | Objetivo                                        |
+| ------ | ----------------------------------------------- |
+| Step 1 | Infraestructura y autenticación                 |
+| Step 2 | Backend completo + API + Swagger                |
+| Step 3 | App móvil                                       |
+| Step 4 | Publicar y validar con usuarios reales          |
 
 ---
 

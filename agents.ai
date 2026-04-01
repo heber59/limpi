@@ -2,7 +2,7 @@
 
 ## Propósito
 
-Este archivo guía a una IA que retome el proyecto, explicando el flujo general, los archivos clave y qué debe hacerse a continuación.
+Este archivo guía a una IA que retome el proyecto y mantenga el backend ya implementado, explicando el flujo general, los archivos clave y qué viene después.
 
 ## Contexto del proyecto
 
@@ -12,6 +12,8 @@ Este archivo guía a una IA que retome el proyecto, explicando el flujo general,
 - DB: Supabase PostgreSQL
 - Documentación: Swagger
 - Prefijo global: `api/v1`
+- Swagger docs disponibles en `/docs`
+- Al arrancar el servidor `/` redirige automáticamente a `/docs`
 
 ## Flujo principal
 
@@ -23,20 +25,29 @@ Este archivo guía a una IA que retome el proyecto, explicando el flujo general,
 6. Si existe, el usuario se adjunta a `request.user`.
 7. El endpoint devuelve o modifica datos en Supabase.
 
-## Archivos de inicio
+## Componentes implementados
 
 - `src/main.ts`
-  - global prefix y Swagger ya configurados
+  - global prefix y Swagger configurados
+  - `/` redirige a `/docs`
 - `src/app.module.ts`
   - importa `ConfigModule`, `SupabaseModule`, `FirebaseModule`, `AuthModule`, `UsersModule`, `JobsModule`, `ApplicationsModule`, `ReviewsModule`, `ChatModule`, `NotificationsModule`
 - `src/common/guards/firebase-auth.guard.ts`
-  - implementa el guard de Firebase
+  - implementa guard Firebase
 - `src/modules/auth/*`
   - auth controller, service y DTOs
-- `src/supabase/supabase.service.ts`
-  - cliente Supabase global
-- `src/firebase/firebase.service.ts`
-  - inicializa Firebase Admin con config
+- `src/modules/users/*`
+  - usuario CRUD
+- `src/modules/jobs/*`
+  - trabajos, actualizar, cancelar
+- `src/modules/applications/*`
+  - postularse, aceptar, rechazar, listar propias aplicaciones
+- `src/modules/reviews/*`
+  - crear reseñas
+- `src/modules/chat/*`
+  - chat por trabajo
+- `src/modules/notifications/*`
+  - registro de token de notificaciones
 
 ## Documentación de referencia
 
@@ -46,73 +57,28 @@ Este archivo guía a una IA que retome el proyecto, explicando el flujo general,
 
 ## Qué revisar primero
 
-1. Confirmar que `src/modules/auth` funciona y que el guard es correcto.
-2. Verificar que Swagger está disponible en `/docs` y que la autorización bearer funciona.
-3. Inspeccionar las tablas de la base de datos definidas en `bd.docs.md`.
-4. Identificar los módulos que solo tienen placeholder y deben completarse:
-   - `users`
-   - `jobs`
-   - `applications`
-   - `reviews`
-   - `chat`
-   - `notifications`
+1. Verificar que Swagger está disponible en `/docs`.
+2. Confirmar que los endpoints se llaman desde `/api/v1`.
+3. Revisar `src/common/guards/firebase-auth.guard.ts` para el flujo de autenticación.
+4. Validar `src/supabase/supabase.service.ts` y `src/firebase/firebase.service.ts`.
 
-## Qué construir después
+## Qué hacer después
 
-### Auth
-- Ya implementado parcialmente.
-- Verificar que el token Firebase se valide y que el usuario exista en Supabase.
+### Prioridad inmediata
+- Probar la API con Swagger y Postman.
+- Confirmar el flujo de creación de trabajos, aplicaciones, chat y reviews.
+- Asegurar que `/` redirija a `/docs` sin afectar `/api/v1`.
 
-### Users
-- Endpoints CRUD básicos.
-- No exponer `firebase_uid`.
-
-### Jobs
-- Crear trabajos, listar todos, obtener por id, actualizar, cancelar.
-
-### Applications
-- Postularse a trabajos.
-- Aceptar o rechazar postulaciones.
-- Listar postulaciones del usuario actual.
-
-### Reviews
-- Crear reseñas luego del trabajo.
-
-### Chat
-- Mensajes por trabajo.
-- Obtener mensajes y enviar nuevos.
-
-### Notifications
-- Guardar token de notificación.
-
-## Estructura recomendada
-
-- `src/modules/<module>/<module>.module.ts`
-- `src/modules/<module>/<module>.controller.ts`
-- `src/modules/<module>/<module>.service.ts`
-- `src/modules/<module>/dto/*.dto.ts`
+### Próximos pasos
+- Completar la app móvil.
+- Preparar deploy.
+- Añadir más tests e2e y cobertura.
+- Documentar los modelos de datos en `bd.docs.md`.
 
 ## Reglas de implementación
 
-- Usar `readonly` en los constructores.
-- Mantener la lógica en el service.
-- Validar con `class-validator`.
-- Documentar con `@ApiProperty` y Swagger decorators.
-- Usar excepciones de NestJS.
-- Mantener controllers ligeros.
-- No usar Passport para Firebase Auth.
-- Usar guardas comunes en `src/common/guards`.
-
-## Cómo proceder
-
-1. Leer `NEXT_STEPS.md`.
-2. Revisar las implementaciones actuales en `src/modules/auth`.
-3. Crear o completar módulos en el orden de prioridad:
-   - `users`
-   - `jobs`
-   - `applications`
-   - `reviews`
-   - `chat`
-   - `notifications`
-4. Probar cada endpoint con Swagger o Postman.
-5. Mantener actualizados los DTOs y respuestas.
+- Mantener la lógica en los servicios.
+- Usar `class-validator` en los DTOs.
+- Documentar con Swagger.
+- No exponer campos sensibles como `firebase_uid`.
+- Mantener los controladores ligeros.
