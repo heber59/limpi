@@ -1,0 +1,84 @@
+# Limpi Backend AI Agent Guide
+
+## Propósito
+
+Este archivo guía a una IA que retome el proyecto y mantenga el backend ya implementado, explicando el flujo general, los archivos clave y qué viene después.
+
+## Contexto del proyecto
+
+- Proyecto: Limpi
+- Backend: NestJS
+- Auth: Firebase Auth
+- DB: Supabase PostgreSQL
+- Documentación: Swagger
+- Prefijo global: `api/v1`
+- Swagger docs disponibles en `/docs`
+- Al arrancar el servidor `/` redirige automáticamente a `/docs`
+
+## Flujo principal
+
+1. El cliente móvil inicia sesión con Firebase.
+2. Firebase devuelve un `idToken`.
+3. El cliente llama la API NestJS con `Authorization: Bearer <token>`.
+4. `FirebaseAuthGuard` valida el token con `FirebaseService.getAuth().verifyIdToken()`.
+5. El guard busca el usuario en Supabase usando `firebase_uid`.
+6. Si existe, el usuario se adjunta a `request.user`.
+7. El endpoint devuelve o modifica datos en Supabase.
+
+## Componentes implementados
+
+- `src/main.ts`
+  - global prefix y Swagger configurados
+  - `/` redirige a `/docs`
+- `src/app.module.ts`
+  - importa `ConfigModule`, `SupabaseModule`, `FirebaseModule`, `AuthModule`, `UsersModule`, `JobsModule`, `ApplicationsModule`, `ReviewsModule`, `ChatModule`, `NotificationsModule`
+- `src/common/guards/firebase-auth.guard.ts`
+  - implementa guard Firebase
+- `src/modules/auth/*`
+  - auth controller, service y DTOs
+- `src/modules/users/*`
+  - usuario CRUD
+- `src/modules/jobs/*`
+  - trabajos, actualizar, cancelar
+- `src/modules/applications/*`
+  - postularse, aceptar, rechazar, listar propias aplicaciones
+- `src/modules/reviews/*`
+  - crear reseñas
+- `src/modules/chat/*`
+  - chat por trabajo
+- `src/modules/notifications/*`
+  - registro de token de notificaciones
+
+## Documentación de referencia
+
+- `README.md`
+- `proyectAspect.md`
+- `bd.docs.md`
+
+## Qué revisar primero
+
+1. Verificar que Swagger está disponible en `/docs`.
+2. Confirmar que los endpoints se llaman desde `/api/v1`.
+3. Revisar `src/common/guards/firebase-auth.guard.ts` para el flujo de autenticación.
+4. Validar `src/supabase/supabase.service.ts` y `src/firebase/firebase.service.ts`.
+
+## Qué hacer después
+
+### Prioridad inmediata
+- Probar la API con Swagger y Postman.
+- Confirmar el flujo de creación de trabajos, aplicaciones, chat y reviews.
+- Asegurar que `/` redirija a `/docs` sin afectar `/api/v1`.
+
+### Próximos pasos
+- Completar la app móvil.
+- Preparar deploy.
+- Añadir más tests e2e y cobertura.
+- Documentar los modelos de datos en `bd.docs.md`.
+
+## Reglas de implementación
+
+- Mantener la lógica en los servicios.
+- Usar `class-validator` en los DTOs.
+- Documentar con Swagger.
+- No exponer campos sensibles como `firebase_uid`.
+- Mantener los controladores ligeros.
