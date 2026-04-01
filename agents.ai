@@ -1,0 +1,118 @@
+# Limpi Backend AI Agent Guide
+
+## Propósito
+
+Este archivo guía a una IA que retome el proyecto, explicando el flujo general, los archivos clave y qué debe hacerse a continuación.
+
+## Contexto del proyecto
+
+- Proyecto: Limpi
+- Backend: NestJS
+- Auth: Firebase Auth
+- DB: Supabase PostgreSQL
+- Documentación: Swagger
+- Prefijo global: `api/v1`
+
+## Flujo principal
+
+1. El cliente móvil inicia sesión con Firebase.
+2. Firebase devuelve un `idToken`.
+3. El cliente llama la API NestJS con `Authorization: Bearer <token>`.
+4. `FirebaseAuthGuard` valida el token con `FirebaseService.getAuth().verifyIdToken()`.
+5. El guard busca el usuario en Supabase usando `firebase_uid`.
+6. Si existe, el usuario se adjunta a `request.user`.
+7. El endpoint devuelve o modifica datos en Supabase.
+
+## Archivos de inicio
+
+- `src/main.ts`
+  - global prefix y Swagger ya configurados
+- `src/app.module.ts`
+  - importa `ConfigModule`, `SupabaseModule`, `FirebaseModule`, `AuthModule`, `UsersModule`, `JobsModule`, `ApplicationsModule`, `ReviewsModule`, `ChatModule`, `NotificationsModule`
+- `src/common/guards/firebase-auth.guard.ts`
+  - implementa el guard de Firebase
+- `src/modules/auth/*`
+  - auth controller, service y DTOs
+- `src/supabase/supabase.service.ts`
+  - cliente Supabase global
+- `src/firebase/firebase.service.ts`
+  - inicializa Firebase Admin con config
+
+## Documentación de referencia
+
+- `README.md`
+- `proyectAspect.md`
+- `bd.docs.md`
+
+## Qué revisar primero
+
+1. Confirmar que `src/modules/auth` funciona y que el guard es correcto.
+2. Verificar que Swagger está disponible en `/docs` y que la autorización bearer funciona.
+3. Inspeccionar las tablas de la base de datos definidas en `bd.docs.md`.
+4. Identificar los módulos que solo tienen placeholder y deben completarse:
+   - `users`
+   - `jobs`
+   - `applications`
+   - `reviews`
+   - `chat`
+   - `notifications`
+
+## Qué construir después
+
+### Auth
+- Ya implementado parcialmente.
+- Verificar que el token Firebase se valide y que el usuario exista en Supabase.
+
+### Users
+- Endpoints CRUD básicos.
+- No exponer `firebase_uid`.
+
+### Jobs
+- Crear trabajos, listar todos, obtener por id, actualizar, cancelar.
+
+### Applications
+- Postularse a trabajos.
+- Aceptar o rechazar postulaciones.
+- Listar postulaciones del usuario actual.
+
+### Reviews
+- Crear reseñas luego del trabajo.
+
+### Chat
+- Mensajes por trabajo.
+- Obtener mensajes y enviar nuevos.
+
+### Notifications
+- Guardar token de notificación.
+
+## Estructura recomendada
+
+- `src/modules/<module>/<module>.module.ts`
+- `src/modules/<module>/<module>.controller.ts`
+- `src/modules/<module>/<module>.service.ts`
+- `src/modules/<module>/dto/*.dto.ts`
+
+## Reglas de implementación
+
+- Usar `readonly` en los constructores.
+- Mantener la lógica en el service.
+- Validar con `class-validator`.
+- Documentar con `@ApiProperty` y Swagger decorators.
+- Usar excepciones de NestJS.
+- Mantener controllers ligeros.
+- No usar Passport para Firebase Auth.
+- Usar guardas comunes en `src/common/guards`.
+
+## Cómo proceder
+
+1. Leer `NEXT_STEPS.md`.
+2. Revisar las implementaciones actuales en `src/modules/auth`.
+3. Crear o completar módulos en el orden de prioridad:
+   - `users`
+   - `jobs`
+   - `applications`
+   - `reviews`
+   - `chat`
+   - `notifications`
+4. Probar cada endpoint con Swagger o Postman.
+5. Mantener actualizados los DTOs y respuestas.
