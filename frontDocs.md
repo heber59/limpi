@@ -127,7 +127,7 @@ GET   /jobs/:id
 PATCH /jobs/:id
 POST  /jobs/:id/cancel
 ```
-
+a
 ### Applications
 ```
 POST /jobs/:id/apply
