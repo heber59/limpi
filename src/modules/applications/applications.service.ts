@@ -46,13 +46,12 @@ export class ApplicationsService {
   ): Promise<ApplicationResponseDto> {
     const client = this.supabaseService.getClient();
 
-    const { data: existingApplication, error: selectError } =
-      (await client
-        .from('applications')
-        .select('*')
-        .eq('job_id', jobId)
-        .eq('worker_id', workerId)
-        .single()) as SupabaseSingleResponse<SupabaseApplicationRow>;
+    const { data: existingApplication, error: selectError } = (await client
+      .from('applications')
+      .select('*')
+      .eq('job_id', jobId)
+      .eq('worker_id', workerId)
+      .single()) as SupabaseSingleResponse<SupabaseApplicationRow>;
 
     if (selectError && selectError.code !== 'PGRST116') {
       throw new InternalServerErrorException(
@@ -64,17 +63,16 @@ export class ApplicationsService {
       return this.mapToResponse(existingApplication);
     }
 
-    const { data: createdApplication, error: insertError } =
-      (await client
-        .from('applications')
-        .insert({
-          job_id: jobId,
-          worker_id: workerId,
-          status: 'pending',
-          message: message ?? null,
-        })
-        .select()
-        .single()) as SupabaseSingleResponse<SupabaseApplicationRow>;
+    const { data: createdApplication, error: insertError } = (await client
+      .from('applications')
+      .insert({
+        job_id: jobId,
+        worker_id: workerId,
+        status: 'pending',
+        message: message ?? null,
+      })
+      .select()
+      .single()) as SupabaseSingleResponse<SupabaseApplicationRow>;
 
     if (insertError || !createdApplication) {
       throw new InternalServerErrorException('Unable to create application');
@@ -100,27 +98,25 @@ export class ApplicationsService {
       throw new ForbiddenException('Only pending applications can be accepted');
     }
 
-    const { data: updatedApplication, error } =
-      (await this.supabaseService
-        .getClient()
-        .from('applications')
-        .update({ status: 'accepted' })
-        .eq('id', id)
-        .select()
-        .single()) as SupabaseSingleResponse<SupabaseApplicationRow>;
+    const { data: updatedApplication, error } = (await this.supabaseService
+      .getClient()
+      .from('applications')
+      .update({ status: 'accepted' })
+      .eq('id', id)
+      .select()
+      .single()) as SupabaseSingleResponse<SupabaseApplicationRow>;
 
     if (error || !updatedApplication) {
       throw new InternalServerErrorException('Unable to accept application');
     }
 
-    const { data: updatedJob, error: jobError } =
-      (await this.supabaseService
-        .getClient()
-        .from('jobs')
-        .update({ status: 'assigned', assigned_worker_id: application.worker_id })
-        .eq('id', application.job_id)
-        .select()
-        .single()) as SupabaseSingleResponse<SupabaseJobRow>;
+    const { data: updatedJob, error: jobError } = (await this.supabaseService
+      .getClient()
+      .from('jobs')
+      .update({ status: 'assigned', assigned_worker_id: application.worker_id })
+      .eq('id', application.job_id)
+      .select()
+      .single()) as SupabaseSingleResponse<SupabaseJobRow>;
 
     if (jobError || !updatedJob) {
       throw new InternalServerErrorException('Unable to assign worker to job');
@@ -146,14 +142,13 @@ export class ApplicationsService {
       throw new ForbiddenException('Only pending applications can be rejected');
     }
 
-    const { data: updatedApplication, error } =
-      (await this.supabaseService
-        .getClient()
-        .from('applications')
-        .update({ status: 'rejected' })
-        .eq('id', id)
-        .select()
-        .single()) as SupabaseSingleResponse<SupabaseApplicationRow>;
+    const { data: updatedApplication, error } = (await this.supabaseService
+      .getClient()
+      .from('applications')
+      .update({ status: 'rejected' })
+      .eq('id', id)
+      .select()
+      .single()) as SupabaseSingleResponse<SupabaseApplicationRow>;
 
     if (error || !updatedApplication) {
       throw new InternalServerErrorException('Unable to reject application');
@@ -163,12 +158,14 @@ export class ApplicationsService {
   }
 
   async findMine(workerId: string): Promise<ApplicationResponseDto[]> {
-    const { data: applications, error } =
-      (await this.supabaseService
-        .getClient()
-        .from('applications')
-        .select('*')
-        .eq('worker_id', workerId)) as SupabaseListResponse<SupabaseApplicationRow>;
+    const { data: applications, error } = (await this.supabaseService
+      .getClient()
+      .from('applications')
+      .select('*')
+      .eq(
+        'worker_id',
+        workerId,
+      )) as SupabaseListResponse<SupabaseApplicationRow>;
 
     if (error) {
       throw new InternalServerErrorException('Unable to fetch applications');
@@ -180,13 +177,12 @@ export class ApplicationsService {
   }
 
   private async getApplication(id: string): Promise<SupabaseApplicationRow> {
-    const { data: application, error } =
-      (await this.supabaseService
-        .getClient()
-        .from('applications')
-        .select('*')
-        .eq('id', id)
-        .single()) as SupabaseSingleResponse<SupabaseApplicationRow>;
+    const { data: application, error } = (await this.supabaseService
+      .getClient()
+      .from('applications')
+      .select('*')
+      .eq('id', id)
+      .single()) as SupabaseSingleResponse<SupabaseApplicationRow>;
 
     if (error || !application) {
       throw new NotFoundException('Application not found');
@@ -196,13 +192,12 @@ export class ApplicationsService {
   }
 
   private async getJob(jobId: string): Promise<SupabaseJobRow> {
-    const { data: job, error } =
-      (await this.supabaseService
-        .getClient()
-        .from('jobs')
-        .select('id, client_id, status')
-        .eq('id', jobId)
-        .single()) as SupabaseSingleResponse<SupabaseJobRow>;
+    const { data: job, error } = (await this.supabaseService
+      .getClient()
+      .from('jobs')
+      .select('id, client_id, status')
+      .eq('id', jobId)
+      .single()) as SupabaseSingleResponse<SupabaseJobRow>;
 
     if (error || !job) {
       throw new NotFoundException('Job not found');

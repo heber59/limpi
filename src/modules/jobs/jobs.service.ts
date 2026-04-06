@@ -47,22 +47,21 @@ export class JobsService {
   ): Promise<JobResponseDto> {
     const client = this.supabaseService.getClient();
 
-    const { data: createdJob, error } =
-      (await client
-        .from('jobs')
-        .insert({
-          client_id: clientId,
-          title: createJobDto.title,
-          description: createJobDto.description,
-          address: createJobDto.address,
-          date: createJobDto.date,
-          start_time: createJobDto.startTime,
-          hours: createJobDto.hours,
-          price: createJobDto.price,
-          status: createJobDto.status ?? 'open',
-        })
-        .select()
-        .single()) as SupabaseSingleResponse<SupabaseJobRow>;
+    const { data: createdJob, error } = (await client
+      .from('jobs')
+      .insert({
+        client_id: clientId,
+        title: createJobDto.title,
+        description: createJobDto.description,
+        address: createJobDto.address,
+        date: createJobDto.date,
+        start_time: createJobDto.startTime,
+        hours: createJobDto.hours,
+        price: createJobDto.price,
+        status: createJobDto.status ?? 'open',
+      })
+      .select()
+      .single()) as SupabaseSingleResponse<SupabaseJobRow>;
 
     if (error || !createdJob) {
       throw new InternalServerErrorException('Unable to create job');
@@ -72,11 +71,10 @@ export class JobsService {
   }
 
   async findAll(): Promise<JobResponseDto[]> {
-    const { data: jobs, error } =
-      (await this.supabaseService
-        .getClient()
-        .from('jobs')
-        .select('*')) as SupabaseListResponse<SupabaseJobRow>;
+    const { data: jobs, error } = (await this.supabaseService
+      .getClient()
+      .from('jobs')
+      .select('*')) as SupabaseListResponse<SupabaseJobRow>;
 
     if (error) {
       throw new InternalServerErrorException('Unable to fetch jobs');
@@ -86,13 +84,12 @@ export class JobsService {
   }
 
   async findOne(id: string): Promise<JobResponseDto> {
-    const { data: job, error } =
-      (await this.supabaseService
-        .getClient()
-        .from('jobs')
-        .select('*')
-        .eq('id', id)
-        .single()) as SupabaseSingleResponse<SupabaseJobRow>;
+    const { data: job, error } = (await this.supabaseService
+      .getClient()
+      .from('jobs')
+      .select('*')
+      .eq('id', id)
+      .single()) as SupabaseSingleResponse<SupabaseJobRow>;
 
     if (error || !job) {
       throw new NotFoundException('Job not found');
@@ -123,14 +120,13 @@ export class JobsService {
       status: updateJobDto.status,
     };
 
-    const { data: updatedJob, error } =
-      (await this.supabaseService
-        .getClient()
-        .from('jobs')
-        .update(updatePayload)
-        .eq('id', id)
-        .select()
-        .single()) as SupabaseSingleResponse<SupabaseJobRow>;
+    const { data: updatedJob, error } = (await this.supabaseService
+      .getClient()
+      .from('jobs')
+      .update(updatePayload)
+      .eq('id', id)
+      .select()
+      .single()) as SupabaseSingleResponse<SupabaseJobRow>;
 
     if (error || !updatedJob) {
       throw new InternalServerErrorException('Unable to update job');
@@ -146,14 +142,13 @@ export class JobsService {
       throw new ForbiddenException('Only the job creator can cancel this job');
     }
 
-    const { data: cancelledJob, error } =
-      (await this.supabaseService
-        .getClient()
-        .from('jobs')
-        .update({ status: 'cancelled' })
-        .eq('id', id)
-        .select()
-        .single()) as SupabaseSingleResponse<SupabaseJobRow>;
+    const { data: cancelledJob, error } = (await this.supabaseService
+      .getClient()
+      .from('jobs')
+      .update({ status: 'cancelled' })
+      .eq('id', id)
+      .select()
+      .single()) as SupabaseSingleResponse<SupabaseJobRow>;
 
     if (error || !cancelledJob) {
       throw new InternalServerErrorException('Unable to cancel job');
