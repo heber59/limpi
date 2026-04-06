@@ -18,6 +18,7 @@ lerna-debug.log*
 # Tests
 /coverage
 /.nyc_output
+firebase-auth-test.html
 
 # IDEs and editors
 /.idea
