@@ -1,5 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  INestApplication,
+  CanActivate,
+  ExecutionContext,
+} from '@nestjs/common';
+import type { Request as ExpressRequest } from 'express';
+import type { Server } from 'http';
 import request from 'supertest';
 import { AuthController } from '../src/modules/auth/auth.controller';
 import { JobsController } from '../src/modules/jobs/jobs.controller';
@@ -27,9 +33,13 @@ const mockUser = {
   created_at: new Date().toISOString(),
 };
 
+interface TestRequest extends ExpressRequest {
+  user?: typeof mockUser;
+}
+
 class MockAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<TestRequest>();
     request.user = mockUser;
     return true;
   }
@@ -112,6 +122,7 @@ const notificationsServiceMock = {
 
 describe('API Endpoints (e2e)', () => {
   let app: INestApplication;
+  let server: Server;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -136,6 +147,7 @@ describe('API Endpoints (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+    server = app.getHttpServer() as unknown as Server;
   });
 
   afterAll(async () => {
@@ -143,7 +155,7 @@ describe('API Endpoints (e2e)', () => {
   });
 
   it('/auth/me (GET) returns current user', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .get('/auth/me')
       .expect(200)
       .expect((res) => {
@@ -155,7 +167,7 @@ describe('API Endpoints (e2e)', () => {
   });
 
   it('/jobs (POST) creates a job', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .post('/jobs')
       .send({
         title: 'Limpieza de casa',
@@ -165,22 +177,26 @@ describe('API Endpoints (e2e)', () => {
       })
       .expect(201)
       .expect((res) => {
-        expect(res.body).toMatchObject({ id: jobResponse.id, title: jobResponse.title });
+        expect(res.body).toMatchObject({
+          id: jobResponse.id,
+          title: jobResponse.title,
+        });
       });
   });
 
   it('/jobs (GET) returns jobs list', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .get('/jobs')
       .expect(200)
       .expect((res) => {
-        expect(Array.isArray(res.body)).toBe(true);
-        expect(res.body[0]).toMatchObject({ id: jobResponse.id });
+        const body = res.body as Array<{ id: string }>;
+        expect(Array.isArray(body)).toBe(true);
+        expect(body[0]).toMatchObject({ id: jobResponse.id });
       });
   });
 
   it('/jobs/:id (GET) returns one job', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .get(`/jobs/${jobResponse.id}`)
       .expect(200)
       .expect((res) => {
@@ -189,7 +205,7 @@ describe('API Endpoints (e2e)', () => {
   });
 
   it('/jobs/:id/cancel (POST) cancels a job', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .post(`/jobs/${jobResponse.id}/cancel`)
       .expect(201)
       .expect((res) => {
@@ -198,17 +214,20 @@ describe('API Endpoints (e2e)', () => {
   });
 
   it('/jobs/:id/apply (POST) creates an application', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .post(`/jobs/${jobResponse.id}/apply`)
       .send({ message: 'Quiero postularme' })
       .expect(201)
       .expect((res) => {
-        expect(res.body).toMatchObject({ id: applicationResponse.id, jobId: applicationResponse.jobId });
+        expect(res.body).toMatchObject({
+          id: applicationResponse.id,
+          jobId: applicationResponse.jobId,
+        });
       });
   });
 
   it('/applications/:id/accept (POST) accepts an application', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .post(`/applications/${applicationResponse.id}/accept`)
       .expect(201)
       .expect((res) => {
@@ -217,7 +236,7 @@ describe('API Endpoints (e2e)', () => {
   });
 
   it('/applications/:id/reject (POST) rejects an application', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .post(`/applications/${applicationResponse.id}/reject`)
       .expect(201)
       .expect((res) => {
@@ -226,27 +245,29 @@ describe('API Endpoints (e2e)', () => {
   });
 
   it('/my-applications (GET) returns current user applications', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .get('/my-applications')
       .expect(200)
       .expect((res) => {
-        expect(Array.isArray(res.body)).toBe(true);
-        expect(res.body[0]).toMatchObject({ id: applicationResponse.id });
+        const body = res.body as Array<{ id: string }>;
+        expect(Array.isArray(body)).toBe(true);
+        expect(body[0]).toMatchObject({ id: applicationResponse.id });
       });
   });
 
   it('/jobs/:id/messages (GET) returns messages for a job', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .get(`/jobs/${jobResponse.id}/messages`)
       .expect(200)
       .expect((res) => {
-        expect(Array.isArray(res.body)).toBe(true);
-        expect(res.body[0]).toMatchObject({ id: messageResponse.id });
+        const body = res.body as Array<{ id: string }>;
+        expect(Array.isArray(body)).toBe(true);
+        expect(body[0]).toMatchObject({ id: messageResponse.id });
       });
   });
 
   it('/jobs/:id/messages (POST) sends a message', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .post(`/jobs/${jobResponse.id}/messages`)
       .send({ message: 'Hola, ¿estás disponible?' })
       .expect(201)
@@ -256,12 +277,15 @@ describe('API Endpoints (e2e)', () => {
   });
 
   it('/notifications/token (POST) registers a device token', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .post('/notifications/token')
       .send({ token: notificationResponse.token })
       .expect(201)
       .expect((res) => {
-        expect(res.body).toMatchObject({ id: notificationResponse.id, token: notificationResponse.token });
+        expect(res.body).toMatchObject({
+          id: notificationResponse.id,
+          token: notificationResponse.token,
+        });
       });
   });
 });

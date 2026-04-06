@@ -4,9 +4,15 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
+import type { PostgrestError } from '@supabase/supabase-js';
 import { SupabaseService } from '../../supabase/supabase.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewResponseDto } from './dto/review-response.dto';
+
+type SupabaseSingleResponse<T> = {
+  data: T | null;
+  error: PostgrestError | null;
+};
 
 interface SupabaseReviewRow {
   id: string;
@@ -35,11 +41,11 @@ export class ReviewsService {
   ): Promise<ReviewResponseDto> {
     const client = this.supabaseService.getClient();
 
-    const { data: job, error: jobError } = await client
+    const { data: job, error: jobError } = (await client
       .from('jobs')
       .select('id, client_id, assigned_worker_id, status')
       .eq('id', createReviewDto.jobId)
-      .single();
+      .single()) as SupabaseSingleResponse<SupabaseJobRow>;
 
     if (jobError || !job) {
       throw new NotFoundException('Job not found');
@@ -70,7 +76,7 @@ export class ReviewsService {
       );
     }
 
-    const { data: review, error: insertError } = await client
+    const { data: review, error: insertError } = (await client
       .from('reviews')
       .insert({
         job_id: createReviewDto.jobId,
@@ -80,13 +86,13 @@ export class ReviewsService {
         comment: createReviewDto.comment ?? null,
       })
       .select()
-      .single();
+      .single()) as SupabaseSingleResponse<SupabaseReviewRow>;
 
     if (insertError || !review) {
       throw new InternalServerErrorException('Unable to create review');
     }
 
-    return this.mapToResponse(review as SupabaseReviewRow);
+    return this.mapToResponse(review);
   }
 
   private mapToResponse(review: SupabaseReviewRow): ReviewResponseDto {

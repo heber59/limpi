@@ -4,10 +4,16 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import type { PostgrestError } from '@supabase/supabase-js';
 import { SupabaseService } from '../../supabase/supabase.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
+
+type SupabaseSingleResponse<T> = {
+  data: T | null;
+  error: PostgrestError | null;
+};
 
 type UserRole = 'client' | 'worker';
 
@@ -35,21 +41,21 @@ export class UsersService {
   ): Promise<UserResponseDto> {
     const client = this.supabaseService.getClient();
 
-    const { data: existingUser, error: selectError } = await client
+    const { data: existingUser, error: selectError } = (await client
       .from('users')
       .select('*')
       .eq('firebase_uid', firebaseUid)
-      .single();
+      .single()) as SupabaseSingleResponse<SupabaseUserRow>;
 
     if (selectError && selectError.code !== 'PGRST116') {
       throw new InternalServerErrorException('Unable to verify existing user');
     }
 
     if (existingUser) {
-      return this.mapToResponse(existingUser as SupabaseUserRow);
+      return this.mapToResponse(existingUser);
     }
 
-    const { data: createdUser, error: insertError } = await client
+    const { data: createdUser, error: insertError } = (await client
       .from('users')
       .insert({
         firebase_uid: firebaseUid,
@@ -60,28 +66,28 @@ export class UsersService {
         document_photo_url: createUserDto.documentPhotoUrl ?? null,
       })
       .select()
-      .single();
+      .single()) as SupabaseSingleResponse<SupabaseUserRow>;
 
     if (insertError || !createdUser) {
       throw new InternalServerErrorException('Unable to create user');
     }
 
-    return this.mapToResponse(createdUser as SupabaseUserRow);
+    return this.mapToResponse(createdUser);
   }
 
   async findOne(id: string): Promise<UserResponseDto> {
-    const { data: user, error } = await this.supabaseService
+    const { data: user, error } = (await this.supabaseService
       .getClient()
       .from('users')
       .select('*')
       .eq('id', id)
-      .single();
+      .single()) as SupabaseSingleResponse<SupabaseUserRow>;
 
     if (error || !user) {
       throw new NotFoundException('User not found');
     }
 
-    return this.mapToResponse(user as SupabaseUserRow);
+    return this.mapToResponse(user);
   }
 
   async update(
@@ -101,19 +107,19 @@ export class UsersService {
       document_photo_url: updateUserDto.documentPhotoUrl,
     };
 
-    const { data: updatedUser, error } = await this.supabaseService
+    const { data: updatedUser, error } = (await this.supabaseService
       .getClient()
       .from('users')
       .update(updatePayload)
       .eq('id', id)
       .select()
-      .single();
+      .single()) as SupabaseSingleResponse<SupabaseUserRow>;
 
     if (error || !updatedUser) {
       throw new InternalServerErrorException('Unable to update user');
     }
 
-    return this.mapToResponse(updatedUser as SupabaseUserRow);
+    return this.mapToResponse(updatedUser);
   }
 
   private mapToResponse(user: SupabaseUserRow): UserResponseDto {

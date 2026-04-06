@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Response } from 'express';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -48,8 +49,7 @@ async function bootstrap() {
     },
   });
 
-  const httpAdapter = app.getHttpAdapter();
-  httpAdapter.get('/', (_req, res) => {
+  app.use('/', (_req, res: Response) => {
     res.redirect('/docs');
   });
 
@@ -63,4 +63,4 @@ async function bootstrap() {
   );
 }
 
-bootstrap();
+void bootstrap();
