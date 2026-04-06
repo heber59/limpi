@@ -12,13 +12,13 @@
 
 Activar:
 
-* Authentication
-* Cloud Messaging
-* Storage
+- Authentication
+- Cloud Messaging
+- Storage
 
- Authentication:
+Authentication:
 
-* Login con email
+- Login con email
 
 ---
 
@@ -26,7 +26,7 @@ Activar:
 
 Crear DB en:
 
-* Supabase
+- Supabase
 
 Crear tablas iniciales:
 
@@ -107,11 +107,11 @@ notifications
 
 Lo importante aquí:
 
-* login Firebase
-* NestJS verifica el token de Firebase y lee el usuario de Supabase
-* API con prefijo global `/api/v1`
-* Swagger disponible en `/docs`
-* `/` redirige automáticamente a `/docs`
+- login Firebase
+- NestJS verifica el token de Firebase y lee el usuario de Supabase
+- API con prefijo global `/api/v1`
+- Swagger disponible en `/docs`
+- `/` redirige automáticamente a `/docs`
 
 Flujo:
 
@@ -127,7 +127,7 @@ App login → Firebase → devuelve token → App llama la API → NestJS verifi
 
 Usar:
 
-* Swagger (OpenAPI)
+- Swagger (OpenAPI)
 
 Endpoints MVP:
 
@@ -186,9 +186,9 @@ POST /notifications/token
 
 Cuando tengas Swagger funcionando, ya tienes backend profesional.
 
-* Swagger: `/docs`
-* API base: `/api/v1`
-* `/` redirige a `/docs`
+- Swagger: `/docs`
+- API base: `/api/v1`
+- `/` redirige a `/docs`
 
 ---
 
@@ -198,47 +198,45 @@ Cuando tengas Swagger funcionando, ya tienes backend profesional.
 
 Framework:
 
-* Flutter
+- Flutter
 
 ## Pantallas mínimas
 
 ### Comunes
 
-* Login
-* Registro
-* Completar perfil
+- Login
+- Registro
+- Completar perfil
 
 ### Cliente
 
-* Publicar trabajo
-* Mis trabajos
-* Ver postulaciones
-* Elegir trabajadora
-* Chat
-* Calificar
+- Publicar trabajo
+- Mis trabajos
+- Ver postulaciones
+- Elegir trabajadora
+- Chat
+- Calificar
 
 ### Trabajadora
 
-* Lista de trabajos
-* Postularse
-* Mis trabajos
-* Chat
-* Calificar
-
+- Lista de trabajos
+- Postularse
+- Mis trabajos
+- Chat
+- Calificar
 
 ## Publicar app
 
-* Android primero (más fácil)
-
+- Android primero (más fácil)
 
 # Resumen del Roadmap
 
-| Step   | Objetivo                                        |
-| ------ | ----------------------------------------------- |
-| Step 1 | Infraestructura y autenticación                 |
-| Step 2 | Backend completo + API + Swagger                |
-| Step 3 | App móvil                                       |
-| Step 4 | Publicar y validar con usuarios reales          |
+| Step   | Objetivo                               |
+| ------ | -------------------------------------- |
+| Step 1 | Infraestructura y autenticación        |
+| Step 2 | Backend completo + API + Swagger       |
+| Step 3 | App móvil                              |
+| Step 4 | Publicar y validar con usuarios reales |
 
 ---
 
@@ -255,3 +253,6 @@ Se realiza el trabajo
 Se marca como terminado
 Ambos se califican
 ```
+
+/
+cd route python3 -m http.server 8080

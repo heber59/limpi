@@ -28,7 +28,7 @@ firebase-auth-test.html
 *.launch
 .settings/
 *.sublime-workspace
-
+.codex
 # IDE - VSCode
 .vscode/*
 !.vscode/settings.json
