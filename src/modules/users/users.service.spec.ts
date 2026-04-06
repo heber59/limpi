@@ -3,9 +3,18 @@ import { SupabaseService } from '../../supabase/supabase.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 
+interface MockSupabaseClient {
+  from: jest.MockedFunction<() => MockSupabaseClient>;
+  select: jest.MockedFunction<() => MockSupabaseClient>;
+  eq: jest.MockedFunction<() => MockSupabaseClient>;
+  single: jest.MockedFunction<() => Promise<{ data: unknown; error: unknown }>>;
+  insert: jest.MockedFunction<() => MockSupabaseClient>;
+  update: jest.MockedFunction<() => MockSupabaseClient>;
+}
+
 describe('UsersService', () => {
   let service: UsersService;
-  let mockClient: any;
+  let mockClient: MockSupabaseClient;
 
   beforeEach(async () => {
     mockClient = {
@@ -15,7 +24,7 @@ describe('UsersService', () => {
       single: jest.fn(),
       insert: jest.fn().mockReturnThis(),
       update: jest.fn().mockReturnThis(),
-    };
+    } as unknown as MockSupabaseClient;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
