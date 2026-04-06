@@ -39,12 +39,11 @@ export class AuthService {
   ): Promise<UserResponseDto> {
     const client = this.supabaseService.getClient();
 
-    const { data: existingUser, error: selectError } =
-      (await client
-        .from('users')
-        .select('*')
-        .eq('firebase_uid', firebaseUid)
-        .single()) as SupabaseSingleResponse<SupabaseUserRow>;
+    const { data: existingUser, error: selectError } = (await client
+      .from('users')
+      .select('*')
+      .eq('firebase_uid', firebaseUid)
+      .single()) as SupabaseSingleResponse<SupabaseUserRow>;
 
     if (selectError && selectError.code !== 'PGRST116') {
       throw new InternalServerErrorException('Unable to query existing user');
@@ -54,17 +53,16 @@ export class AuthService {
       return this.mapToResponse(existingUser);
     }
 
-    const { data: createdUser, error: insertError } =
-      (await client
-        .from('users')
-        .insert({
-          firebase_uid: firebaseUid,
-          name: registerDto.name,
-          phone: registerDto.phone,
-          role: registerDto.role,
-        })
-        .select()
-        .single()) as SupabaseSingleResponse<SupabaseUserRow>;
+    const { data: createdUser, error: insertError } = (await client
+      .from('users')
+      .insert({
+        firebase_uid: firebaseUid,
+        name: registerDto.name,
+        phone: registerDto.phone,
+        role: registerDto.role,
+      })
+      .select()
+      .single()) as SupabaseSingleResponse<SupabaseUserRow>;
 
     if (insertError || !createdUser) {
       throw new InternalServerErrorException('Unable to create user');

@@ -7,6 +7,7 @@ import {
 import type { Request as ExpressRequest } from 'express';
 import type { Server } from 'http';
 import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it, jest } from '@jest/globals';
 import { AuthController } from '../src/modules/auth/auth.controller';
 import { JobsController } from '../src/modules/jobs/jobs.controller';
 import { ApplicationsController } from '../src/modules/applications/applications.controller';
@@ -46,15 +47,11 @@ class MockAuthGuard implements CanActivate {
 }
 
 const authServiceMock = {
-  getMe: jest.fn().mockResolvedValue({
+  getMe: jest.fn<() => Promise<typeof mockUser>>().mockResolvedValue({
     ...mockUser,
-    id: mockUser.id,
-    firebase_uid: mockUser.firebase_uid,
   }),
-  register: jest.fn().mockResolvedValue({
+  register: jest.fn<() => Promise<typeof mockUser>>().mockResolvedValue({
     ...mockUser,
-    id: mockUser.id,
-    firebase_uid: mockUser.firebase_uid,
   }),
 };
 
@@ -71,11 +68,21 @@ const jobResponse = {
 };
 
 const jobsServiceMock = {
-  create: jest.fn().mockResolvedValue(jobResponse),
-  findAll: jest.fn().mockResolvedValue([jobResponse]),
-  findOne: jest.fn().mockResolvedValue(jobResponse),
-  update: jest.fn().mockResolvedValue(jobResponse),
-  cancel: jest.fn().mockResolvedValue(jobResponse),
+  create: jest
+    .fn<() => Promise<typeof jobResponse>>()
+    .mockResolvedValue(jobResponse),
+  findAll: jest
+    .fn<() => Promise<(typeof jobResponse)[]>>()
+    .mockResolvedValue([jobResponse]),
+  findOne: jest
+    .fn<() => Promise<typeof jobResponse>>()
+    .mockResolvedValue(jobResponse),
+  update: jest
+    .fn<() => Promise<typeof jobResponse>>()
+    .mockResolvedValue(jobResponse),
+  cancel: jest
+    .fn<() => Promise<typeof jobResponse>>()
+    .mockResolvedValue(jobResponse),
 };
 
 const applicationResponse = {
@@ -89,10 +96,18 @@ const applicationResponse = {
 };
 
 const applicationsServiceMock = {
-  apply: jest.fn().mockResolvedValue(applicationResponse),
-  accept: jest.fn().mockResolvedValue(applicationResponse),
-  reject: jest.fn().mockResolvedValue(applicationResponse),
-  findMine: jest.fn().mockResolvedValue([applicationResponse]),
+  apply: jest
+    .fn<() => Promise<typeof applicationResponse>>()
+    .mockResolvedValue(applicationResponse),
+  accept: jest
+    .fn<() => Promise<typeof applicationResponse>>()
+    .mockResolvedValue(applicationResponse),
+  reject: jest
+    .fn<() => Promise<typeof applicationResponse>>()
+    .mockResolvedValue(applicationResponse),
+  findMine: jest
+    .fn<() => Promise<(typeof applicationResponse)[]>>()
+    .mockResolvedValue([applicationResponse]),
 };
 
 const messageResponse = {
@@ -104,8 +119,12 @@ const messageResponse = {
 };
 
 const chatServiceMock = {
-  findMessages: jest.fn().mockResolvedValue([messageResponse]),
-  sendMessage: jest.fn().mockResolvedValue(messageResponse),
+  findMessages: jest
+    .fn<() => Promise<(typeof messageResponse)[]>>()
+    .mockResolvedValue([messageResponse]),
+  sendMessage: jest
+    .fn<() => Promise<typeof messageResponse>>()
+    .mockResolvedValue(messageResponse),
 };
 
 const notificationResponse = {
@@ -117,7 +136,9 @@ const notificationResponse = {
 };
 
 const notificationsServiceMock = {
-  registerToken: jest.fn().mockResolvedValue(notificationResponse),
+  registerToken: jest
+    .fn<() => Promise<typeof notificationResponse>>()
+    .mockResolvedValue(notificationResponse),
 };
 
 describe('API Endpoints (e2e)', () => {
